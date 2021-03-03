@@ -2,6 +2,7 @@ import pandas as pd
 import string
 import gensim
 from gensim.parsing.preprocessing import preprocess_string
+from gensim.models.doc2vec import TaggedDocument
 
 def data_reader(data, id_var, description_var, drop_missing=True):
     id = data[id_var].values
@@ -35,3 +36,8 @@ def preprocess_text(df, description_var, filters=None, printable_only=True, remo
         df = df[~df.tokens.str.len().eq(0)]
         df.reset_index(inplace=True, drop=True)
     return df
+
+# Assumes df has a variable named "tokens" and "id"
+def TweetDocument(df):
+    descriptions = [TaggedDocument(words=df.tokens[i], tags=df.id[i]) for i in range(len(df.tokens))]
+    return descriptions
