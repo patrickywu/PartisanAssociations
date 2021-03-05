@@ -39,5 +39,5 @@ def preprocess_text(df, description_var, filters=None, printable_only=True, remo
 
 # Assumes df has a variable named "tokens" and "id"
 def TweetDocument(df):
-    descriptions = [TaggedDocument(words=df.tokens[i], tags=df.id[i]) for i in range(len(df.tokens))]
+    descriptions = [TaggedDocument(words=df.tokens[i], tags=[str(df.id[i])]) for i in range(len(df.tokens))]
     return descriptions
