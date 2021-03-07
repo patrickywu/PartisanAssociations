@@ -1,4 +1,4 @@
-# Partisan Associations
+# Partisan Associations of Twitter Users
 
 This Python package aims to estimate Twitter users' partisan associations given partisan keywords and Twitter users' bios. The idea of this approach is to learn the non-partisan words that are in the contextual neighborhoods of explicitly partisan words. Even if someone does not explicitly use partisan expressions in their bio, he or she may describe themselves with words that the descriptions that feature explicit partisan expressions tend to contain. This idea resonates with research that studies the associations between partisan sentiments and seemingly non-partisan identities, activities, hobbies, spending habits, and interests.
 
@@ -13,4 +13,4 @@ pip install -r requirements.txt
 python setup.py develop
 ```
 
-From this, you can import the functions in the package. 
+From this, you can import the functions in the package.
