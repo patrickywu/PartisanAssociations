@@ -14,3 +14,5 @@ python setup.py develop
 ```
 
 From this, you can import the functions in the package.
+
+This package is still under construction. Please let me know if you have any questions. For contact information, please see my personal website (linked on my GitHub profile). 
