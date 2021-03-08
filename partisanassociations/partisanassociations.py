@@ -77,3 +77,12 @@ def averaging_pa_scores(PA_scores):
     PA_scores_mean = PA_scores_mean.reset_index()
 
     return PA_scores_mean
+
+def obtain_pa_scores(descriptions, pairs_words, total_passes=10, n_dim=150, epochs=100, window=10, alpha=0.03, min_alpha=0.03, workers=2, min_count=8, dm=0, dbow_words=1, save_by_iteration=True):
+    iterations = word_embeddings_spaces(descriptions=descriptions, total_passes=total_passes, n_dim=n_dim, epochs=epochs, window=window, alpha=alpha, min_alpha=min_alpha, workers=workers, min_count=min_count, dm=dm, dbow_words=dbow_words, save_by_iteration=save_by_iteration)
+    ids = []
+    for i in range(len(descriptions)):
+        ids.append(descriptions[i].tags[0])
+    pa_scores = partisan_associations(iterations=iterations, pairs_words=pairs_words, ids=ids)
+    final_pa_scores = averaging_pa_scores(PA_scores=pa_scores)
+    return final_pa_scores
