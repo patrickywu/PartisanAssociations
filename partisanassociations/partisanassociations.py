@@ -20,6 +20,7 @@ def word_embeddings_spaces(descriptions, total_passes=10, n_dim=150, epochs=100,
     '''
     iterations = {}
     for i in range(0,total_passes):
+        print("Pass" + str(i))
         desc_d2v = Doc2Vec(documents=descriptions, vector_size=n_dim, window=window, alpha=alpha, min_alpha=min_alpha, min_count=min_count, dm=dm, dbow_words=dbow_words, epochs=epochs, workers=workers)
         iterations[f'iter{i}'] = desc_d2v
         if save_by_iteration:
