@@ -1,5 +1,6 @@
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
 import numpy as np
 import pandas as pd
 
@@ -28,23 +29,29 @@ def word_embeddings_spaces(descriptions, total_passes=10, n_dim=150, epochs=100,
             desc_d2v.save(file_name)
     return iterations
 
-def produce_subspace_vector(positive, negative, model):
+def produce_subspace_vector(positive, negative, model, to_normalize=False):
     psum = np.zeros(model[0].shape[0])
     nsum = np.zeros(model[0].shape[0])
 
     for p in positive:
-        psum += model.wv[p]
+        if to_normalize:
+            psum += normalize(np.expand_dims(model.wv[p], axis=0)).squeeze(0)
+        else:
+            psum += model.wv[p]
     if len(positive) > 1:
         psum /= len(positive)
 
     for n in negative:
-        nsum += model.wv[n]
+        if to_normalize:
+            nsum += normalize(np.expand_dims(model.wv[n], axis=0)).squeeze(0)
+        else:
+            nsum += model.wv[n]
     if len(negative) > 1:
         nsum /= len(negative)
 
     return psum - nsum
 
-def partisan_associations(iterations, pairs_words, ids):
+def partisan_associations(iterations, pairs_words, ids, to_normalize=False):
     """
     iterations: a dictionary of iterations
     pairs_words: a list of lists; each individual list is of length 2 and consists of a list of positive words and a list of negative words. Either of the lists can be of length 0.
@@ -55,11 +62,11 @@ def partisan_associations(iterations, pairs_words, ids):
     for i in range(len(iterations)):
         iteration_name = f'iter{i}'
         mod = iterations[iteration_name]
-        docvecs = [mod.docvecs[x] for x in ids]
+        docvecs = [mod.dv[x] for x in ids]
         df_iteration = pd.DataFrame(ids, columns=['id'])
 
         for pair in pairs_words:
-            subspace = produce_subspace_vector(positive=pair[0], negative=pair[1], model=mod)
+            subspace = produce_subspace_vector(positive=pair[0], negative=pair[1], model=mod, to_normalize=to_normalize)
             subspace = np.expand_dims(subspace, axis=0)
             cs = cosine_similarity(docvecs, subspace)
             variable_name_pos = ''.join(pair[0])
