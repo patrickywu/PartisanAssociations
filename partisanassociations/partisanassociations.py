@@ -29,29 +29,59 @@ def word_embeddings_spaces(descriptions, total_passes=10, n_dim=150, epochs=100,
             desc_d2v.save(file_name)
     return iterations
 
-def produce_subspace_vector(positive, negative, model, to_normalize=False):
+def produce_subspace_vector(positive, negative, model, to_normalize=False, weighted=False):
     psum = np.zeros(model[0].shape[0])
     nsum = np.zeros(model[0].shape[0])
 
+    max_word_count = model.wv.get_vecattr(model.wv.index_to_key[0], 'count')
+    if weighted:
+        weights = []
+
     for p in positive:
         if to_normalize:
-            psum += normalize(np.expand_dims(model.wv[p], axis=0)).squeeze(0)
+            if weighted:
+                weight = model.wv.get_vecattr(p, 'count') / max_word_count
+                psum += normalize(np.expand_dims(model.wv[p], axis=0)).squeeze(0) * weight
+                weights.append(weight)
+            else:
+                psum += normalize(np.expand_dims(model.wv[p], axis=0)).squeeze(0)
         else:
-            psum += model.wv[p]
-    if len(positive) > 1:
-        psum /= len(positive)
+            if weighted:
+                weight = model.wv.get_vecattr(p, 'count') / max_word_count
+                psum += model.wv[p] * weight
+                weights.append(weight)
+            else:
+                psum += model.wv[p]
+    if len(positive) > 0:
+        if weighted:
+            psum = psum / sum(weights)
+        else:
+            psum /= len(positive)
 
     for n in negative:
         if to_normalize:
-            nsum += normalize(np.expand_dims(model.wv[n], axis=0)).squeeze(0)
+            if weighted:
+                weight = model.wv.get_vecattr(n, 'count') / max_word_count
+                nsum += normalize(np.expand_dims(model.wv[n], axis=0)).squeeze(0) * weight
+                weights.append(weight)
+            else:
+                nsum += normalize(np.expand_dims(model.wv[n], axis=0)).squeeze(0)
         else:
-            nsum += model.wv[n]
-    if len(negative) > 1:
-        nsum /= len(negative)
+            if weighted:
+                weight = model.wv.get_vecattr(n, 'count') / max_word_count
+                nsum += model.wv[n] * weight
+                weights.append(weight)
+            else:
+                nsum += model.wv[n]
+    if len(negative) > 0:
+        if weighted:
+            nsum = nsum / sum(weights)
+        else:
+            nsum /= len(negative)
 
     return psum - nsum
 
-def partisan_associations(iterations, pairs_words, ids, to_normalize=False):
+def partisan_associations(iterations, pairs_words, ids, to_normalize=False, weighted=False):
     """
     iterations: a dictionary of iterations
     pairs_words: a list of lists; each individual list is of length 2 and consists of a list of positive words and a list of negative words. Either of the lists can be of length 0.
@@ -66,7 +96,7 @@ def partisan_associations(iterations, pairs_words, ids, to_normalize=False):
         df_iteration = pd.DataFrame(ids, columns=['id'])
 
         for pair in pairs_words:
-            subspace = produce_subspace_vector(positive=pair[0], negative=pair[1], model=mod, to_normalize=to_normalize)
+            subspace = produce_subspace_vector(positive=pair[0], negative=pair[1], model=mod, to_normalize=to_normalize, weighted=weighted)
             subspace = np.expand_dims(subspace, axis=0)
             cs = cosine_similarity(docvecs, subspace)
             variable_name_pos = ''.join(pair[0])
