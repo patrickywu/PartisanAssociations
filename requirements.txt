@@ -1,5 +1,5 @@
 pandas
 numpy
-gensim
+gensim==4.0.1
 nltk
 sklearn
