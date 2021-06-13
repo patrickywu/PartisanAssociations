@@ -3,6 +3,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
 import numpy as np
 import pandas as pd
+import pickle
 
 def word_embeddings_spaces(descriptions, total_passes=10, n_dim=150, epochs=100, window=10, alpha=0.03, min_alpha=0.03, workers=2, min_count=8, dm=0, dbow_words=1, save_by_iteration=True):
     '''
@@ -26,6 +27,7 @@ def word_embeddings_spaces(descriptions, total_passes=10, n_dim=150, epochs=100,
         iterations[f'iter{i}'] = desc_d2v
         if save_by_iteration:
             file_name = f'iter{i}_d2v.pkl'
+            pickle.dump(desc_d2v, open(file_name, 'wb'))
             desc_d2v.save(file_name)
     return iterations
 
