@@ -28,7 +28,6 @@ def word_embeddings_spaces(descriptions, total_passes=10, n_dim=150, epochs=100,
         if save_by_iteration:
             file_name = f'iter{i}_d2v.pkl'
             pickle.dump(desc_d2v, open(file_name, 'wb'))
-            desc_d2v.save(file_name)
     return iterations
 
 def produce_subspace_vector(positive, negative, model, to_normalize=False, weighted=False):
